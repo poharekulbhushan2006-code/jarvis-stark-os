@@ -1,0 +1,59 @@
+# ===============================================
+# JARVIS / Stark Industries OS Git Ignore
+# ===============================================
+
+# Python & Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Secrets & Private Environment Variables (Strict Air-Gap Protection)
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.pfx
+
+# Large Speech Recognition Binary Models (Vosk ~40MB+)
+models/
+
+# Local Temporary Audio Cache & User Data
+cache/
+screenshots/
+notes/
+*.log
+
+# Windows System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE & Editor Settings
+.idea/
+.vscode/
+*.swp
+*.swo
+.agents/

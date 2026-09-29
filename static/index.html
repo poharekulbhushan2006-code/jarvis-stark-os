@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. // Stark Industries Operating System</title>
+    <meta name="description" content="J.A.R.V.I.S. Autonomous AI Desktop Assistant with Holographic Stark HUD, Voice Interaction, and System Telemetry.">
+    <!-- Google Fonts: Orbitron (Headings), Rajdhani (Technical UI), Outfit (Dialogue), JetBrains Mono (Telemetry/Code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;800;900&family=Outfit:wght@300;400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="theme-cyber">
+    <!-- Atmospheric Holographic Backdrop & Grid -->
+    <div class="hud-background">
+        <canvas id="hudParticleCanvas"></canvas>
+        <div class="hud-grid-plane"></div>
+        <div class="hud-vignette"></div>
+        <div class="glow-focal-cyan"></div>
+        <div class="glow-ambient-blue"></div>
+        <div class="hud-scanlines"></div>
+    </div>
+
+    <!-- Main Holographic HUD Wrapper -->
+    <div class="hud-wrapper">
+        <!-- TOP HUD SYSTEM BAR -->
+        <header class="hud-header">
+            <!-- Corner Brackets -->
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="header-left">
+                <div class="stark-logo">
+                    <svg class="stark-arc-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"/>
+                        <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                    </svg>
+                    <span class="logo-accent">STARK</span> INDUSTRIES
+                </div>
+                <div class="system-tag">
+                    <span class="pulse-dot"></span>
+                    <span class="tag-title">J.A.R.V.I.S. MK-85</span>
+                    <span class="tag-sep">//</span>
+                    <span class="tag-status" id="connectionStatus">ONLINE</span>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="hud-time-deck">
+                    <div class="hud-clock" id="hudClock">12:00:00 AM</div>
+                    <div class="hud-date" id="hudDate">FRIDAY, SEPTEMBER 18, 2026</div>
+                </div>
+                <div class="state-badge" id="aiStateBadge">
+                    <span class="badge-pulsar"></span>
+                    <span class="badge-text" id="aiStateText">STANDBY</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <!-- Air-Gap Privacy Shield Active Pill -->
+                <div class="airgap-pill active" id="btnAirGapToggle" title="Click to Toggle Air-Gap Shield (Guarantees zero outbound data leaks)">
+                    <span class="pulse-dot airgap-dot" id="airGapDot"></span>
+                    <div class="airgap-info">
+                        <span class="airgap-title">AIR-GAP SHIELD</span>
+                        <span class="airgap-model" id="airGapStatusLabel">SECURED // LOCAL</span>
+                    </div>
+                    <span class="airgap-badge" id="airGapBadgeLabel">0B LEAK</span>
+                </div>
+
+                <!-- OmniRoute Gateway Live Pill -->
+                <div class="omniroute-pill" id="omniroutePill" title="Local AI Gateway (OmniRoute)">
+                    <span class="pulse-dot omni-dot" id="omniDot"></span>
+                    <div class="omni-info">
+                        <span class="omni-title">OMNIROUTE</span>
+                        <span class="omni-model" id="omniModelBadge">AUTO-COMBO</span>
+                    </div>
+                    <span class="omni-badge" id="omniSavingsBadge">LOCAL</span>
+                </div>
+
+                <div class="header-actions">
+                    <button class="hud-tool-btn sfx-btn active" id="btnSoundFX" title="Toggle Futuristic Sound Effects">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        </svg>
+                        <span>SFX: <strong id="sfxStatusLabel">ON</strong></span>
+                    </button>
+                    <button class="hud-tool-btn" id="btnCommandMatrix" title="Holographic Tactical Command Library">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        <span>COMMANDS</span>
+                    </button>
+                    <button class="hud-tool-btn lockdown-btn" id="btnHeaderLockdown" title="Initiate Security Lockdown (Lock Workstation & Mute)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <span>LOCKDOWN</span>
+                    </button>
+                    <button class="hud-tool-btn" id="btnNotes" title="Saved Notes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        <span>NOTES</span>
+                    </button>
+                    <button class="hud-tool-btn" id="btnScreenshots" title="Screenshots Gallery">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span>CAPTURES</span>
+                    </button>
+                    <button class="hud-tool-btn" id="btnHeaderVoiceEnroll" title="Enroll Biometric Voiceprint" style="color: var(--accent-cyan); border-color: rgba(0, 217, 255, 0.35); background: rgba(0, 217, 255, 0.08);">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                        <span>VOICE ENROLL</span>
+                    </button>
+                    <button class="hud-tool-btn" id="btnSettings" title="System Settings">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                        <span>CONFIG</span>
+                    </button>
+                    <button class="hud-tool-btn" id="btnHeaderStandby" title="Power Down to Standby" style="color: #ff5566; border-color: rgba(255, 85, 102, 0.35); background: rgba(255, 85, 102, 0.08);">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                        <span>SLEEP</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN HOLOGRAPHIC COCKPIT (3 PANELS) -->
+        <main class="hud-main">
+            <!-- LEFT PANEL: Hardware Diagnostics & Controls -->
+            <section class="hud-panel panel-left" aria-label="Hardware Telemetry">
+                <span class="hud-bracket br-tl"></span>
+                <span class="hud-bracket br-tr"></span>
+                <span class="hud-bracket br-bl"></span>
+                <span class="hud-bracket br-br"></span>
+
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="accent-bar"></span>
+                        <span>DIAGNOSTICS & CONTROLS</span>
+                    </div>
+                    <div class="telemetry-ping" id="pingRate">
+                        <span class="ping-pulse"></span> LIVE
+                    </div>
+                </div>
+
+                <!-- Sleek Segmented Switcher for Left Panel -->
+                <div class="panel-switcher">
+                    <button type="button" class="switch-tab active" id="tabMetrics" onclick="switchLeftPanel('metrics')">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        <span>TELEMETRY</span>
+                    </button>
+                    <button type="button" class="switch-tab" id="tabOperations" onclick="switchLeftPanel('operations')">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                        </svg>
+                        <span>OPERATIONS</span>
+                    </button>
+                    <button type="button" class="switch-tab" id="tabSecurity" onclick="switchLeftPanel('security')">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <span>SECURITY</span>
+                    </button>
+                </div>
+
+                <!-- Deck 1: System Telemetry & Gauges -->
+                <div class="left-deck-section active" id="sectionMetrics">
+                    <div class="gauges-grid">
+                        <!-- CPU Gauge -->
+                        <div class="gauge-card">
+                            <div class="gauge-svg-wrap">
+                                <svg class="radial-svg" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="gauge-bar gauge-cpu" id="gaugeCpuBar" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="gauge-center-text">
+                                    <span class="gauge-val" id="valCpu">0%</span>
+                                    <span class="gauge-lbl">CPU LOAD</span>
+                                </div>
+                            </div>
+                            <div class="gauge-meta" id="cpuMeta">Multithreaded</div>
+                        </div>
+
+                        <!-- RAM Gauge -->
+                        <div class="gauge-card">
+                            <div class="gauge-svg-wrap">
+                                <svg class="radial-svg" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="gauge-bar gauge-ram" id="gaugeRamBar" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="gauge-center-text">
+                                    <span class="gauge-val" id="valRam">0%</span>
+                                    <span class="gauge-lbl">MEMORY</span>
+                                </div>
+                            </div>
+                            <div class="gauge-meta" id="ramMeta">-- / -- GB</div>
+                        </div>
+
+                        <!-- Battery Gauge -->
+                        <div class="gauge-card">
+                            <div class="gauge-svg-wrap">
+                                <svg class="radial-svg" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="gauge-bar gauge-batt" id="gaugeBattBar" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="gauge-center-text">
+                                    <span class="gauge-val" id="valBatt">100%</span>
+                                    <span class="gauge-lbl">BATTERY</span>
+                                </div>
+                            </div>
+                            <div class="gauge-meta" id="battMeta">Plugged In</div>
+                        </div>
+
+                        <!-- Storage / Disk Gauge -->
+                        <div class="gauge-card">
+                            <div class="gauge-svg-wrap">
+                                <svg class="radial-svg" viewBox="0 0 120 120">
+                                    <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="gauge-bar gauge-disk" id="gaugeDiskBar" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="gauge-center-text">
+                                    <span class="gauge-val" id="valDisk">0%</span>
+                                    <span class="gauge-lbl">DRIVE C:</span>
+                                </div>
+                            </div>
+                            <div class="gauge-meta" id="diskMeta">-- GB Free</div>
+                        </div>
+                    </div>
+
+                    <!-- Hardware Quick Sliders -->
+                    <div class="telemetry-sliders">
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <span class="slider-label">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                                    MASTER VOLUME
+                                </span>
+                                <span class="slider-val" id="lblVolume">100%</span>
+                            </div>
+                            <input type="range" class="hud-slider" id="sliderVolume" min="0" max="100" value="100">
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-header">
+                                <span class="slider-label">
+                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                                    DISPLAY BRIGHTNESS
+                                </span>
+                                <span class="slider-val" id="lblBrightness">60%</span>
+                            </div>
+                            <input type="range" class="hud-slider" id="sliderBrightness" min="0" max="100" value="60">
+                        </div>
+                    </div>
+
+                    <!-- Active Processes Snippet -->
+                    <div class="proc-widget">
+                        <div class="proc-header">
+                            <span>TOP RAM PROCESSES</span>
+                            <span class="proc-refresh-tag">AUTO-REFRESH</span>
+                        </div>
+                        <div class="proc-list" id="procList">
+                            <div class="proc-item placeholder-proc">Monitoring process table...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deck 2: Media & Workspace Automation -->
+                <div class="left-deck-section" id="sectionOperations">
+                    <!-- System Media Playback Deck -->
+                    <div class="deck-widget media-deck">
+                        <div class="deck-header">
+                            <span class="deck-title">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                                SYSTEM AUDIO DECK
+                            </span>
+                            <div class="media-wave" id="mediaWaveAnim">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                        </div>
+                        <div class="media-track-title" id="mediaTrackLabel">SYSTEM AUDIO PLAYBACK</div>
+                        <div class="media-btn-row">
+                            <button type="button" class="media-btn" id="btnMediaPrev" title="Previous Track">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="4" x2="5" y2="20" stroke="currentColor" stroke-width="2"/></svg>
+                                PREV
+                            </button>
+                            <button type="button" class="media-btn media-btn-primary" id="btnMediaPlayPause" title="Play / Pause">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                PLAY/PAUSE
+                            </button>
+                            <button type="button" class="media-btn" id="btnMediaNext" title="Next Track">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="4" x2="19" y2="20" stroke="currentColor" stroke-width="2"/></svg>
+                                NEXT
+                            </button>
+                            <button type="button" class="media-btn" id="btnMediaStop" title="Stop">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                                STOP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Windows Desktop & Workspace Automation Deck -->
+                    <div class="deck-widget workspace-deck">
+                        <div class="deck-header">
+                            <span class="deck-title">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                WORKSPACE AUTOMATION
+                            </span>
+                        </div>
+                        <div class="workspace-btn-grid">
+                            <button type="button" class="action-card-btn" id="btnShowDesktop" title="Show Desktop / Minimize (Win+D)">
+                                <svg class="card-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                <span class="card-text">SHOW DESKTOP</span>
+                            </button>
+                            <button type="button" class="action-card-btn" id="btnSwitchWindow" title="Cycle Window (Alt+Tab)">
+                                <svg class="card-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/><path d="M20 5H12"/></svg>
+                                <span class="card-text">SWITCH TASK</span>
+                            </button>
+                            <button type="button" class="action-card-btn" id="btnReadClipboard" title="Inspect Windows Clipboard">
+                                <svg class="card-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                                <span class="card-text">CLIPBOARD</span>
+                            </button>
+                            <button type="button" class="action-card-btn action-card-glow" id="btnAnalyzeScreen" title="Analyze Active Screen Display">
+                                <svg class="card-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+                                <span class="card-text">ANALYZE SCREEN</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deck 3: Security & Air-Gap Vault -->
+                <div class="left-deck-section" id="sectionSecurity">
+                    <div class="deck-widget security-deck">
+                        <div class="deck-header">
+                            <span class="deck-title">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                AIR-GAP PRIVACY SHIELD
+                            </span>
+                            <span class="shield-badge-tag active" id="secBadgeStatus">ARMED</span>
+                        </div>
+                        <div class="sec-banner-card">
+                            <div class="sec-status-row">
+                                <span class="sec-pulse-dot"></span>
+                                <div class="sec-text-col">
+                                    <div class="sec-main-title" id="secShieldTitle">AIR-GAP ISOLATION ACTIVE</div>
+                                    <div class="sec-sub-title">100% of data processed strictly on localhost (127.0.0.1)</div>
+                                </div>
+                            </div>
+                            <div class="sec-toggle-row">
+                                <button type="button" class="btn-sec-toggle active" id="btnToggleAirGapAction">
+                                    <span class="sec-switch-knob"></span>
+                                    <span id="btnToggleAirGapLabel">AIR-GAP SHIELD: ENGAGED</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="sec-metrics-grid">
+                            <div class="sec-stat-box">
+                                <span class="sec-stat-val" id="secLeaksBlocked">0</span>
+                                <span class="sec-stat-lbl">OUTBOUND LEAKS BLOCKED</span>
+                            </div>
+                            <div class="sec-stat-box">
+                                <span class="sec-stat-val" id="secLocalPort">8000</span>
+                                <span class="sec-stat-lbl">LOOPBACK ONLY (127.0.0.1)</span>
+                            </div>
+                        </div>
+
+                        <div class="sec-layer-list">
+                            <div class="sec-layer-item">
+                                <span class="layer-dot green"></span>
+                                <span class="layer-name">DPAPI Credential Vault</span>
+                                <span class="layer-val" id="secDpapiVal">ENCRYPTED</span>
+                            </div>
+                            <div class="sec-layer-item">
+                                <span class="layer-dot green"></span>
+                                <span class="layer-name">Voiceprint Biometrics</span>
+                                <span class="layer-val" id="secBioVal">LOCAL MFCC</span>
+                            </div>
+                            <div class="sec-layer-item">
+                                <span class="layer-dot green"></span>
+                                <span class="layer-name">Optical Vision Screencaps</span>
+                                <span class="layer-val">ON-DEVICE ONLY</span>
+                            </div>
+                            <div class="sec-layer-item">
+                                <span class="layer-dot green"></span>
+                                <span class="layer-name">Public Internet Exposure</span>
+                                <span class="layer-val green">0.0.0.0 BLOCKED</span>
+                            </div>
+                        </div>
+
+                        <div class="sec-actions-row">
+                            <button type="button" class="btn-lockdown-emergency" id="btnEngageLockdown">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                <span>ENGAGE SYSTEM LOCKDOWN</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER PANEL: The Holographic Arc Reactor & Voice Core -->
+            <section class="hud-panel panel-center" aria-label="Arc Reactor Interface">
+                <span class="hud-bracket br-tl"></span>
+                <span class="hud-bracket br-tr"></span>
+                <span class="hud-bracket br-bl"></span>
+                <span class="hud-bracket br-br"></span>
+
+                <!-- Holographic Crosshair Reticle Behind Reactor -->
+                <div class="hud-reticle-crosshair">
+                    <span class="reticle-line h-line"></span>
+                    <span class="reticle-line v-line"></span>
+                    <span class="reticle-degree d-top">000°</span>
+                    <span class="reticle-degree d-right">090°</span>
+                    <span class="reticle-degree d-bottom">180°</span>
+                    <span class="reticle-degree d-left">270°</span>
+                </div>
+
+                <div class="reactor-container">
+                    <!-- Concentric Holographic Rotating Rings -->
+                    <div class="arc-ring ring-outer"></div>
+                    <div class="arc-ring ring-tech-lines"></div>
+                    <div class="arc-ring ring-mid"></div>
+                    <div class="arc-ring ring-inner-dashes"></div>
+
+                    <!-- Glowing Arc Reactor Center Core -->
+                    <div class="arc-core-btn" id="arcCoreBtn" role="button" tabindex="0" title="Click or Hold Spacebar to Speak">
+                        <div class="core-glow"></div>
+                        <div class="core-pulsar"></div>
+                        <div class="core-symbol">
+                            <svg viewBox="0 0 100 100" class="core-svg">
+                                <polygon points="50,15 80,33 80,67 50,85 20,67 20,33" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                                <circle cx="50" cy="50" r="14" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="core-state-label" id="coreStateLabel">VOICE READY</div>
+                    </div>
+                </div>
+
+                <!-- Integrated Audio Spectrum Wave Visualizer -->
+                <div class="visualizer-container">
+                    <div class="vis-header-tag">NEURAL AUDIO SPECTRUM</div>
+                    <canvas id="visualizerCanvas" width="540" height="75"></canvas>
+                </div>
+
+                <!-- Voice Interaction Bar & Hint -->
+                <div class="voice-status-deck">
+                    <div class="voice-hint">
+                        <kbd class="hud-kbd">SPACEBAR</kbd> Hold to talk or speak <span class="wake-pill">"Jarvis"</span>
+                    </div>
+
+                    <div class="voice-toggles">
+                        <button class="toggle-pill active" id="btnWakeWord">
+                            <span class="pill-dot"></span> WAKE-WORD: <strong id="wakeWordStatus">ACTIVE</strong>
+                        </button>
+                        <button class="toggle-pill active" id="btnAutoVoice">
+                            <span class="pill-dot"></span> NEURAL VOICE: <strong id="autoVoiceStatus">ON</strong>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Neural Router Status Card -->
+                <div class="neural-router-card" id="neuralRouterCard">
+                    <div class="router-chip">
+                        <span class="router-indicator pulse"></span>
+                        <span class="router-label">AI ROUTING PLANE:</span>
+                        <strong class="router-val" id="routerActiveTarget">OmniRoute Universal (Antigravity Linked)</strong>
+                    </div>
+                    <div class="router-meta">
+                        <span class="meta-tag">Zero-Downtime Fallback</span>
+                        <span class="meta-tag">RTK + Token Compression</span>
+                        <span class="meta-tag">Port: 20128</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Tactical Dialogue Feed & Terminal -->
+            <section class="hud-panel panel-right" aria-label="Conversation Feed">
+                <span class="hud-bracket br-tl"></span>
+                <span class="hud-bracket br-tr"></span>
+                <span class="hud-bracket br-bl"></span>
+                <span class="hud-bracket br-br"></span>
+
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="accent-bar"></span>
+                        <span>TACTICAL COMMAND STREAM</span>
+                    </div>
+                    <button class="btn-clear" id="btnClearFeed" title="Purge Dialogue Stream">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        PURGE
+                    </button>
+                </div>
+
+                <!-- 10-Second Auto-Shutdown Countdown Banner (Activated on Wake) -->
+                <div class="watchdog-banner" id="watchdogBanner" style="display: none;">
+                    <div class="watchdog-content">
+                        <div class="watchdog-icon">
+                            <span class="watchdog-pulse"></span>
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="watchdog-info">
+                            <div class="watchdog-title">AUTO-STANDBY IN <span id="watchdogSeconds">10</span>s</div>
+                            <div class="watchdog-sub">Speak or type a command to keep J.A.R.V.I.S. awake</div>
+                        </div>
+                        <button type="button" class="btn-disarm" id="btnDisarmWatchdog" title="Cancel Auto-Shutdown">
+                            KEEP AWAKE
+                        </button>
+                    </div>
+                    <div class="watchdog-progress-track">
+                        <div class="watchdog-progress-bar" id="watchdogProgressBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="feed-stream" id="feedStream">
+                    <!-- Default Initial Greeting Message -->
+                    <div class="feed-item jarvis-item">
+                        <div class="feed-avatar">J</div>
+                        <div class="feed-content">
+                            <div class="feed-meta">
+                                <span class="author">J.A.R.V.I.S.</span>
+                                <span class="feed-time">SYSTEM BOOT</span>
+                            </div>
+                            <div class="feed-text">
+                                Welcome back, Sir. All systems are online and operational. How may I be of assistance?
+                            </div>
+                            <div class="feed-action-tag">SYSTEM_READY</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Status Line -->
+                <div class="terminal-status-bar">
+                    <span class="term-prompt">&gt;</span>
+                    <span class="term-info" id="termInfo">READY FOR INPUT // STANDBY</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- BOTTOM CONTROLS & COMMAND INPUT DECK -->
+        <footer class="hud-footer">
+            <!-- Quick Command Chips with Sleek HUD Icons -->
+            <div class="quick-chips">
+                <button type="button" class="chip-btn chip-btn-danger" data-cmd="initiate lockdown">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>LOCKDOWN</span>
+                </button>
+                <button type="button" class="chip-btn chip-btn-sec" data-cmd="check security">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>AIR-GAP</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="open github">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    <span>GITHUB</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="open chatgpt">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    <span>CHATGPT</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="empty recycle bin">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span>EMPTY BIN</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="calculate 125 * 8">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg>
+                    <span>CALC</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="take a screenshot">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span>SCREENSHOT</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="show desktop">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    <span>DESKTOP</span>
+                </button>
+                <button type="button" class="chip-btn chip-btn-accent" data-cmd="analyze screen">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/></svg>
+                    <span>VISION</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="what is my battery level">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="11" x2="23" y2="13"/><line x1="6" y1="10" x2="6" y2="14"/></svg>
+                    <span>BATTERY</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="system check">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span>DIAGNOSTICS</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="mute">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                    <span>MUTE</span>
+                </button>
+                <button type="button" class="chip-btn" data-cmd="lock my pc">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>LOCK PC</span>
+                </button>
+            </div>
+
+            <!-- Holographic Command Input Console -->
+            <form class="command-bar-form" id="commandForm">
+                <div class="input-glow-wrap">
+                    <span class="hud-bracket br-tl"></span>
+                    <span class="hud-bracket br-tr"></span>
+                    <span class="hud-bracket br-bl"></span>
+                    <span class="hud-bracket br-br"></span>
+
+                    <span class="input-icon">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </span>
+                    <input type="text" id="commandInput" class="hud-input" placeholder="Transmit instruction or press Spacebar to speak... (e.g. 'pause music', 'analyze screen', 'system check')" autocomplete="off">
+                    
+                    <button type="button" class="btn-mic-icon" id="btnMicIcon" title="Push-to-Talk Voice Core">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                    </button>
+                    
+                    <button type="submit" class="btn-send" id="btnSend">
+                        <span>TRANSMIT</span>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                </div>
+            </form>
+        </footer>
+    </div>
+
+    <!-- MODAL: OMNIROUTE AI GATEWAY -->
+    <div class="hud-modal" id="modalOmniRoute">
+        <div class="modal-card modal-large">
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    <span>OMNIROUTE AI GATEWAY STATUS</span>
+                </div>
+                <button class="modal-close" id="btnCloseOmniRoute">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="omni-gateway-hero">
+                    <div class="gateway-badge-lg">
+                        <span class="gateway-icon">⚡</span>
+                        <div>
+                            <div class="gateway-h1">OmniRoute Universal Proxy</div>
+                            <div class="gateway-sub">Local Inference Plane & Dynamic Multi-Model Auto-Fallback</div>
+                        </div>
+                    </div>
+                    <a href="http://localhost:20128/dashboard" target="_blank" rel="noopener" class="btn-external-dashboard">
+                        OPEN DASHBOARD ↗
+                    </a>
+                </div>
+
+                <div class="gateway-status-grid">
+                    <div class="gw-stat-card">
+                        <span class="stat-num" id="gwStatStatus">ONLINE</span>
+                        <span class="stat-name">GATEWAY STATUS</span>
+                        <span class="stat-sub">http://localhost:20128/v1</span>
+                    </div>
+                    <div class="gw-stat-card">
+                        <span class="stat-num" id="gwStatModel">AUTO-COMBO</span>
+                        <span class="stat-name">DEFAULT ROUTER</span>
+                        <span class="stat-sub">15 Realtime Factors</span>
+                    </div>
+                    <div class="gw-stat-card">
+                        <span class="stat-num">ACTIVE</span>
+                        <span class="stat-name">ANTIGRAVITY OAUTH</span>
+                        <span class="stat-sub">Gemini Pro / Flash</span>
+                    </div>
+                    <div class="gw-stat-card">
+                        <span class="stat-num">~89%</span>
+                        <span class="stat-name">TOKEN COMPRESSION</span>
+                        <span class="stat-sub">RTK + Caveman Engine</span>
+                    </div>
+                </div>
+
+                <div class="gw-details-card">
+                    <div class="gw-details-title">FALLBACK & REDUNDANCY CASCADE</div>
+                    <ol class="cascade-list">
+                        <li><strong>Tier 1 — Antigravity / Subscriptions:</strong> Primary route using your high-speed Google Antigravity quota.</li>
+                        <li><strong>Tier 2 — Direct API Keys:</strong> Seamless fallback to custom Gemini / OpenAI keys if rate-limited.</li>
+                        <li><strong>Tier 3 & 4 — Free Tiers:</strong> Continuous fallback to 90+ cataloged free providers (~1.51B tokens/month) so your queries never fail.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" id="btnDoneOmniRoute">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SETTINGS -->
+    <div class="hud-modal" id="modalSettings">
+        <div class="modal-card">
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span>J.A.R.V.I.S. CONFIGURATION</span>
+                </div>
+                <button class="modal-close" id="btnCloseSettings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="settingGeminiKey">Google Gemini API Key (Optional)</label>
+                    <input type="password" id="settingGeminiKey" class="form-input" placeholder="AIzaSy... (leave blank to use offline local intent engine)">
+                    <small class="form-hint">Enables open-ended conversational reasoning. Get a free API key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="settingUserName">User Address Name</label>
+                    <input type="text" id="settingUserName" class="form-input" placeholder="Sir" value="Sir">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="settingVoice">Neural Voice Model</label>
+                    <select id="settingVoice" class="form-select">
+                        <option value="en-GB-RyanNeural" selected>J.A.R.V.I.S. (British Male - Paul Bettany Style - Active)</option>
+                        <option value="en-GB-ThomasNeural">J.A.R.V.I.S. Classic (British Male - Thomas)</option>
+                        <option value="en-GB-SoniaNeural">FRIDAY (British Female - Sonia)</option>
+                        <option value="en-US-ChristopherNeural">Christopher (US Male - Tactical)</option>
+                        <option value="en-GB-LibbyNeural">Libby (British Female - Polite)</option>
+                        <option value="en-US-AriaNeural">Aria (US Female - Natural)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="settingLockPassword">
+                        Windows Lock Screen Password / PIN
+                        <span id="lockStatusTag" style="font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 6px; background: rgba(0,217,255,0.15); color: var(--accent-cyan);">CHECKING...</span>
+                    </label>
+                    <input type="password" id="settingLockPassword" class="form-input" placeholder="Type Windows password to enable voice unlock">
+                    <span style="font-size: 11px; opacity: 0.65; display: block; margin-top: 4px;">Hardware-encrypted via Windows DPAPI into cache/auth.vault. Never saved in plaintext.</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Boss Voice Biometrics
+                        <span id="voiceStatusTag" style="font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 6px; background: rgba(0,217,255,0.15); color: var(--accent-cyan);">CHECKING...</span>
+                    </label>
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button type="button" class="btn-primary" id="btnOpenVoiceEnroll" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; font-weight: 600; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                            <span>RECORD & ENROLL VOICE IN BROWSER</span>
+                        </button>
+                        <button type="button" class="btn-secondary" id="btnLaunchCalibrate" title="Launch desktop command terminal registration" style="padding: 10px 12px; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        </button>
+                    </div>
+                    <span style="font-size: 11px; opacity: 0.65; display: block; margin-top: 4px;">Train your MFCC acoustic voice signature directly in the browser or terminal.</span>
+                </div>
+
+                <div class="modal-alert" id="settingsAlert"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelSettings">CANCEL</button>
+                <button class="btn-primary" id="btnSaveSettings">SAVE CONFIGURATION</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: BIOMETRIC VOICE ENROLLMENT -->
+    <div class="hud-modal" id="modalVoiceEnroll">
+        <div class="modal-card" style="max-width: 580px;">
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="modal-header">
+                <div class="modal-title" style="color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    <span>BIOMETRIC VOICE ENROLLMENT</span>
+                </div>
+                <button class="modal-close" id="btnCloseVoiceEnroll">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="padding: 20px 24px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 12px; color: var(--accent-cyan); letter-spacing: 1.5px; font-weight: 700; font-family: var(--font-mono);">
+                        STARK INDUSTRIES ACOUSTIC SECURITY PROTOCOL
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">
+                        Record 3 phrases to calibrate your acoustic voiceprint so J.A.R.V.I.S. obeys only you, Sir.
+                    </div>
+                </div>
+
+                <!-- 3 STEP TRACKER -->
+                <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                    <div id="stepBadge1" class="enroll-step-badge active" style="flex: 1; padding: 10px 8px; text-align: center; border-radius: 4px; border: 1px solid var(--accent-cyan); background: rgba(0,217,255,0.12); font-size: 11px; font-family: var(--font-mono);">
+                        <span style="display: block; font-weight: 700; color: var(--accent-cyan);">PHRASE 1</span>
+                        <span id="stepStatus1" style="font-size: 10px; opacity: 0.8; color: var(--accent-cyan);">CURRENT</span>
+                    </div>
+                    <div id="stepBadge2" class="enroll-step-badge" style="flex: 1; padding: 10px 8px; text-align: center; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); font-size: 11px; font-family: var(--font-mono);">
+                        <span style="display: block; font-weight: 700; color: #888;">PHRASE 2</span>
+                        <span id="stepStatus2" style="font-size: 10px; opacity: 0.6; color: #888;">PENDING</span>
+                    </div>
+                    <div id="stepBadge3" class="enroll-step-badge" style="flex: 1; padding: 10px 8px; text-align: center; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); font-size: 11px; font-family: var(--font-mono);">
+                        <span style="display: block; font-weight: 700; color: #888;">PHRASE 3</span>
+                        <span id="stepStatus3" style="font-size: 10px; opacity: 0.6; color: #888;">PENDING</span>
+                    </div>
+                </div>
+
+                <!-- CURRENT PROMPT BOX -->
+                <div style="background: rgba(0, 20, 40, 0.6); border: 1px solid rgba(0,217,255,0.3); border-radius: 6px; padding: 18px; text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 10px; color: var(--accent-cyan); letter-spacing: 1.5px; margin-bottom: 8px; font-family: var(--font-mono);">
+                        SPEAK THIS PHRASE CLEARLY INTO YOUR MIC:
+                    </div>
+                    <div id="enrollPhraseText" style="font-size: 18px; font-weight: 600; color: #fff; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(0,217,255,0.4); min-height: 28px;">
+                        "Jarvis, all systems are online."
+                    </div>
+
+                    <!-- REAL-TIME VU AUDIO LEVEL METER -->
+                    <div style="margin-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-dim); margin-bottom: 4px; font-family: var(--font-mono);">
+                            <span>ACOUSTIC ENERGY LEVEL</span>
+                            <span id="vuLevelValue">0%</span>
+                        </div>
+                        <div style="height: 10px; background: rgba(0,0,0,0.6); border-radius: 5px; overflow: hidden; border: 1px solid rgba(0,217,255,0.2);">
+                            <div id="vuLevelBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #00d9ff, #00ffaa); transition: width 0.05s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ENROLL RECORD CONTROLS -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <button type="button" id="btnRecordEnrollSample" class="btn-primary" style="padding: 12px 28px; font-size: 13px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; box-shadow: 0 0 15px rgba(0,217,255,0.3); cursor: pointer;">
+                        <span id="recordEnrollIcon" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ff3344; box-shadow: 0 0 8px #ff3344;"></span>
+                        <span id="btnRecordEnrollText">RECORD PHRASE (4 SEC)</span>
+                    </button>
+                    
+                    <div id="enrollTimer" style="font-size: 12px; font-family: var(--font-mono); color: var(--accent-cyan); display: none;">
+                        Listening... <span id="enrollSecondsRemaining">4.0s</span>
+                    </div>
+
+                    <div id="enrollFeedback" style="display: none; width: 100%; padding: 10px; border-radius: 4px; font-size: 12px; text-align: center; font-family: var(--font-mono);"></div>
+                </div>
+
+                <!-- TEST VERIFICATION PANEL (APPEARS AFTER COMPLETION) -->
+                <div id="voiceTestSection" style="display: none; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(0,217,255,0.2);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <span style="font-size: 11px; font-weight: 700; color: #00ffaa; letter-spacing: 1px;">
+                            ✅ VOICEPRINT ACTIVE - LIVE VERIFICATION TEST
+                        </span>
+                        <button type="button" id="btnTestVoiceMatch" class="btn-secondary" style="font-size: 11px; padding: 4px 10px; cursor: pointer;">
+                            TEST VOICE MATCH
+                        </button>
+                    </div>
+                    <div id="testMatchResult" style="font-size: 12px; font-family: var(--font-mono); color: var(--text-dim); text-align: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+                        Click "TEST VOICE MATCH" and speak any phrase to test your match percentage.
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="display: flex; justify-content: space-between;">
+                <button type="button" class="btn-secondary" id="btnResetEnrollment" style="font-size: 11px; color: #ff5566; border-color: rgba(255,85,102,0.3);">
+                    RESET VOICEPRINT
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn-secondary" id="btnLaunchCalibrateBat" title="Open terminal window">
+                        USE TERMINAL BAT
+                    </button>
+                    <button type="button" class="btn-primary" id="btnDoneVoiceEnroll">
+                        DONE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SCREENSHOTS GALLERY -->
+    <div class="hud-modal" id="modalScreenshots">
+        <div class="modal-card modal-large">
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>CAPTURED SCREENSHOTS</span>
+                </div>
+                <button class="modal-close" id="btnCloseScreenshots">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="screenshots-grid" id="screenshotsGrid">
+                    <div class="gallery-empty">No captured screenshots found.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NOTES VIEWER -->
+    <div class="hud-modal" id="modalNotes">
+        <div class="modal-card">
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>MEMORY & NOTES</span>
+                </div>
+                <button class="modal-close" id="btnCloseNotes">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="notes-list" id="notesList">
+                    <div class="gallery-empty">No notes recorded yet. Say "take a note: [message]" to save one.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: HOLOGRAPHIC TACTICAL COMMAND LIBRARY -->
+    <div class="hud-modal" id="modalCommandMatrix">
+        <div class="modal-card modal-card-wide">
+            <span class="hud-bracket br-tl"></span>
+            <span class="hud-bracket br-tr"></span>
+            <span class="hud-bracket br-bl"></span>
+            <span class="hud-bracket br-br"></span>
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>TACTICAL COMMAND MATRIX // VOICE & SYSTEM DIRECTIVES</span>
+                </div>
+                <button class="modal-close" id="btnCloseCommandMatrix">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="matrix-search-wrap">
+                    <input type="text" class="hud-input matrix-search" id="matrixSearchInput" placeholder="Filter tactical directives (e.g. airgap, volume, github, calculate)...">
+                </div>
+                <div class="matrix-filter-bar">
+                    <button type="button" class="matrix-filter-btn active" data-cat="all">ALL (24)</button>
+                    <button type="button" class="matrix-filter-btn" data-cat="security">AIR-GAP & SECURITY</button>
+                    <button type="button" class="matrix-filter-btn" data-cat="system">SYSTEM & TOOLS</button>
+                    <button type="button" class="matrix-filter-btn" data-cat="web">WEB LAUNCHERS</button>
+                    <button type="button" class="matrix-filter-btn" data-cat="math">MATH & INTEL</button>
+                </div>
+                <div class="matrix-items-grid" id="matrixItemsGrid">
+                    <!-- Security Directives -->
+                    <div class="matrix-item" data-cat="security" data-cmd="enable airgap">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sec">SECURITY</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Enable Airgap"</div>
+                        <div class="matrix-desc">Guarantees zero outbound data leakage; locks all operations to localhost.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="security" data-cmd="initiate lockdown">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sec">SECURITY</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Initiate Lockdown"</div>
+                        <div class="matrix-desc">Instantly locks Windows workstation and mutes audio output.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="security" data-cmd="check security">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sec">SECURITY</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Check Security"</div>
+                        <div class="matrix-desc">Audits air-gap status, DPAPI encrypted vault, and outbound leak report.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="security" data-cmd="jarvis go to sleep">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sec">SECURITY</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Jarvis, go to sleep"</div>
+                        <div class="matrix-desc">Powers down backend and HUD; returns to silent 0% CPU listener.</div>
+                    </div>
+
+                    <!-- System & Tools Directives -->
+                    <div class="matrix-item" data-cat="system" data-cmd="open task manager">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open Task Manager"</div>
+                        <div class="matrix-desc">Launches Windows taskmgr.exe for hardware process monitoring.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="system" data-cmd="open calculator">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open Calculator"</div>
+                        <div class="matrix-desc">Launches Windows calculator application immediately.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="system" data-cmd="empty recycle bin">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Empty Recycle Bin"</div>
+                        <div class="matrix-desc">Purges deleted files from Windows Recycle Bin and frees storage.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="system" data-cmd="system check">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"System Check"</div>
+                        <div class="matrix-desc">Reports core CPU load, RAM allocation, and power telemetry.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="system" data-cmd="set volume to 80">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Set volume to [X]%"</div>
+                        <div class="matrix-desc">Calibrates master Windows audio gain to specified level.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="system" data-cmd="maximum brightness">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Maximum Brightness"</div>
+                        <div class="matrix-desc">Sets laptop display panel luminosity to 100% capacity.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="system" data-cmd="night mode">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag sys">SYSTEM</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Night Mode"</div>
+                        <div class="matrix-desc">Dims display to 15% and reduces master audio to 25% for dark environments.</div>
+                    </div>
+
+                    <!-- Web Launchers Directives -->
+                    <div class="matrix-item" data-cat="web" data-cmd="open github">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag web">WEB</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open GitHub"</div>
+                        <div class="matrix-desc">Connects to GitHub repository and developer network.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="web" data-cmd="open chatgpt">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag web">WEB</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open ChatGPT"</div>
+                        <div class="matrix-desc">Launches ChatGPT AI neural interface in browser.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="web" data-cmd="open youtube">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag web">WEB</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open YouTube"</div>
+                        <div class="matrix-desc">Navigates to YouTube media and video streams.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="web" data-cmd="open spotify">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag web">WEB</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open Spotify"</div>
+                        <div class="matrix-desc">Launches Spotify web audio streaming player.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="web" data-cmd="open netflix">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag web">WEB</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Open Netflix"</div>
+                        <div class="matrix-desc">Accesses Netflix streaming portal.</div>
+                    </div>
+
+                    <!-- Math & Intel Directives -->
+                    <div class="matrix-item" data-cat="math" data-cmd="calculate 125 * 8">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag math">INTEL</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Calculate 125 * 8"</div>
+                        <div class="matrix-desc">Instant offline arithmetic evaluation with spoken vocal result.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="math" data-cmd="what is 500 divided by 4">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag math">INTEL</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"500 divided by 4"</div>
+                        <div class="matrix-desc">Solves natural language division, percentages, and algebraic sums.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="math" data-cmd="what is my ip">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag math">INTEL</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"What is my IP?"</div>
+                        <div class="matrix-desc">Inspects local network adapter, node hostname, and subnet IP.</div>
+                    </div>
+                    <div class="matrix-item" data-cat="math" data-cmd="analyze screen">
+                        <div class="matrix-item-header">
+                            <span class="matrix-cat-tag math">INTEL</span>
+                            <span class="matrix-voice-badge">VOICE/CLICK</span>
+                        </div>
+                        <div class="matrix-cmd-phrase">"Analyze Screen"</div>
+                        <div class="matrix-desc">Performs local optical capture and telemetry analysis of active window.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL-SCREEN HOLOGRAPHIC STANDBY / SHUTDOWN OVERLAY -->
+    <div class="hud-shutdown-overlay" id="shutdownOverlay" style="display: none;">
+        <div class="shutdown-card">
+            <div class="shutdown-rings">
+                <div class="shutdown-ring-outer"></div>
+                <div class="shutdown-ring-inner"></div>
+                <div class="shutdown-icon">
+                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                        <line x1="12" y1="2" x2="12" y2="12"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="shutdown-title">J.A.R.V.I.S. POWERING DOWN</div>
+            <div class="shutdown-status" id="shutdownStatusMsg">Returning systems to silent standby mode...</div>
+            <div class="shutdown-footer">
+                <span class="pulse-indicator"></span> BACKGROUND DETECTOR ACTIVE // CLAP 2X OR SAY "JARVIS" TO RE-ENGAGE
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden audio element for speech playback -->
+    <audio id="ttsAudioPlayer" preload="auto"></audio>
+
+    <!-- Tab Switcher Helper for Left Panel -->
+    <script>
+        function switchLeftPanel(target) {
+            const tabs = {
+                metrics: { tab: document.getElementById('tabMetrics'), sec: document.getElementById('sectionMetrics') },
+                operations: { tab: document.getElementById('tabOperations'), sec: document.getElementById('sectionOperations') },
+                security: { tab: document.getElementById('tabSecurity'), sec: document.getElementById('sectionSecurity') }
+            };
+            for (const key in tabs) {
+                if (tabs[key].tab && tabs[key].sec) {
+                    if (key === target) {
+                        tabs[key].tab.classList.add('active');
+                        tabs[key].sec.classList.add('active');
+                    } else {
+                        tabs[key].tab.classList.remove('active');
+                        tabs[key].sec.classList.remove('active');
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

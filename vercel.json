@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "name": "jarvis-stark-os",
+  "cleanUrls": true,
+  "outputDirectory": "static",
+  "routes": [
+    {
+      "src": "/api/security/status",
+      "dest": "/mock_security.json"
+    },
+    {
+      "src": "/api/telemetry",
+      "dest": "/mock_telemetry.json"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

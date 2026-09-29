@@ -1,0 +1,20 @@
+{
+  "name": "jarvis-stark-os",
+  "version": "2.0.0",
+  "description": "J.A.R.V.I.S. (Stark Industries Operating System) - Holographic Web HUD & Autonomous Desktop AI",
+  "main": "static/index.html",
+  "scripts": {
+    "start": "python main.py"
+  },
+  "keywords": [
+    "jarvis",
+    "stark-industries",
+    "ai-assistant",
+    "holographic-hud",
+    "voice-biometrics",
+    "air-gap",
+    "cybersecurity"
+  ],
+  "author": "Kulbhushan Kailas Pohare",
+  "license": "MIT"
+}
