@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "jarvis-stark-os",
   "cleanUrls": true,
   "outputDirectory": "static",
   "routes": [

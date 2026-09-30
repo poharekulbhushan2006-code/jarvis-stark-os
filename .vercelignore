@@ -1,0 +1,12 @@
+﻿.venv
+.git
+__pycache__
+*.bat
+*.vbs
+test_*.py
+requirements.txt
+server.py
+main.py
+background_listener.py
+register_voice.py
+setup_lockscreen.py
